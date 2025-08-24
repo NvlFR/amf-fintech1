@@ -17,7 +17,7 @@ Gunakan *prompt* ini untuk memerintahkan AI menghasilkan sebuah panduan instalas
 # Konteks:
 Kita akan membuat dokumentasi instalasi resmi untuk proyek **amf-fintech**. Siapapun yang akan mengerjakan proyek ini harus memulai dengan fondasi yang sama dan konsisten.
 
-Tugas kita adalah menghasilkan sebuah panduan tunggal yang berisi semua perintah *shell* dan instruksi konfigurasi kode yang diperlukan untuk mengubah direktori kosong menjadi proyek LIQ (Laravel, Inertia, Quasar) yang siap dikembangkan.
+Tugas kita adalah menghasilkan sebuah panduan tunggal yang berisi semua perintah *bash* dan instruksi konfigurasi kode yang diperlukan untuk mengubah direktori kosong menjadi proyek LIQ (Laravel, Inertia, Quasar) yang siap dikembangkan.
 
 ### Tugas Anda:
 Berperan sebagai seorang **DevOps Engineer** atau **Senior Full-Stack Developer** yang sedang menulis panduan "Getting Started" untuk anggota tim baru.
@@ -52,4 +52,4 @@ Tugas Anda adalah membuat **Panduan Instalasi Proyek** yang sangat jelas dan mud
     * Perintah `php artisan serve` untuk menjalankan server PHP.
 
 ### Catatan
-Sajikan jawaban Anda sebagai sebuah dokumen panduan yang utuh. Gunakan judul untuk setiap tahap, penjelasan singkat untuk setiap langkah, dan blok kode yang jelas untuk semua perintah *shell* atau potongan kode yang perlu disalin. Tujuannya adalah agar pengguna bisa menyalin dan menempelkan perintah satu per satu tanpa kebingungan.
+Sajikan jawaban Anda sebagai sebuah dokumen panduan yang utuh. Gunakan judul untuk setiap tahap, penjelasan singkat untuk setiap langkah, dan blok kode yang jelas untuk semua perintah *bash* atau potongan kode yang perlu disalin. Tujuannya adalah agar pengguna bisa menyalin dan menempelkan perintah satu per satu tanpa kebingungan.
