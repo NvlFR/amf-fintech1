@@ -16,13 +16,13 @@ Saya telah menyertakan contoh pengisian yang spesifik menggunakan model `Transac
 
 Kita akan membuat Model Eloquent untuk proyek **amf-fintech**.
 
-Model ini akan menjadi representasi dari tabel **`[NAMA_TABEL]`** di dalam aplikasi kita. Tugasnya adalah untuk menangani semua interaksi data dengan tabel tersebut, termasuk mendefinisikan atribut yang bisa diisi dan relasinya dengan model lain.
+Model ini akan menjadi representasi dari tabel **`[budgets]`** di dalam aplikasi kita. Tugasnya adalah untuk menangani semua interaksi data dengan tabel tersebut, termasuk mendefinisikan atribut yang bisa diisi dan relasinya dengan model lain.
 
 ### Tugas Anda:
 
 Berperan sebagai seorang Lead Developer LIQ yang sangat memahami best practice dalam penulisan Model Eloquent di Laravel.
 
-Tugas Anda adalah menulis kode PHP yang lengkap untuk sebuah Model Eloquent dengan nama Class **`[NAMA_MODEL]`**.
+Tugas Anda adalah menulis kode PHP yang lengkap untuk sebuah Model Eloquent dengan nama Class **`[budgets]`**.
 
 ##### Model tersebut harus memiliki konfigurasi sebagai berikut:
 

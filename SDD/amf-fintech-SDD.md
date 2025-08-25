@@ -9,7 +9,6 @@
 ---
 
 ### **1. Pendahuluan & Latar Belakang**
-*Tujuan: Memberikan gambaran umum "mengapa" dan "apa" proyek ini dibuat.*
 
 * **1.1. Visi & Ruang Lingkup Proyek**
 ### **Dokumen Visi & Ruang Lingkup Proyek: amf-fintech**
@@ -721,9 +720,444 @@ erDiagram
 * **4.1. Aplikasi Utama (LIQ Stack)**
     * **4.1.1. Skema Database (Migrations)**
         * *(Kumpulan output dari `Prompt_Generate_Migration_Laravel.md`)*
+
+    **Tabel Migrations users**
+    ```php
+    <?php
+
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
+
+    return new class extends Migration
+    {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            // Primary Key
+            $table->id();
+
+            // Kolom dari ERD
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->enum('subscription_status', ['active', 'inactive', 'trial'])->default('inactive');
+            $table->timestamp('subscription_ends_at')->nullable();
+
+            // Kolom standar Laravel untuk verifikasi email dan "remember me"
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
+            
+            // Kolom created_at dan updated_at
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('users');
+    }
+    };
+    ```
+
+    **Tabel Migrations subscriptions**
+
+    ```php
+    <?php
+
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
+
+    return new class extends Migration
+    {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
+    {
+        Schema::create('subscriptions', function (Blueprint $table) {
+            // Primary Key
+            $table->id();
+
+            // Foreign Key ke tabel 'users'
+            // Jika user dihapus, semua data subscription yang terkait juga akan terhapus (onDelete('cascade'))
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // Kolom dari ERD
+            $table->enum('package_type', ['monthly', 'yearly']);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('payment_status', ['paid', 'pending', 'failed'])->default('pending');
+
+            // Kolom created_at dan updated_at
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('subscriptions');
+    }
+    };
+    ```
+
+    **Tabel Migrations transactions**
+
+
+    ```php
+    <?php
+
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
+
+    return new class extends Migration
+    {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
+    {
+        Schema::create('transactions', function (Blueprint $table) {
+            // Primary Key
+            $table->id();
+
+            // Foreign Key ke tabel 'users'
+            // Jika user dihapus, semua data transaksi yang terkait juga akan terhapus
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // Kolom dari spesifikasi
+            $table->enum('type', ['income', 'expense']);
+            $table->decimal('amount', 15, 2)->unsigned();
+            $table->string('description', 255);
+            $table->date('transaction_date');
+
+            // Kolom created_at dan updated_at
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('transactions');
+    }
+    };
+    ```
+
+    **Tabel Migrations budgets**
+
+
+    ```php
+    <?php
+
+    use Illuminate.Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
+
+    return new class extends Migration
+    {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
+    {
+        Schema::create('budgets', function (Blueprint $table) {
+            // Primary Key
+            $table->id();
+
+            // Foreign Key ke tabel 'users'
+            // Jika user dihapus, semua data budget yang terkait juga akan terhapus
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // Kolom dari ERD
+            $table->string('name');
+            $table->decimal('total_amount', 15, 2)->unsigned();
+            $table->date('start_date');
+            $table->date('end_date');
+
+            // Kolom created_at dan updated_at
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('budgets');
+    }
+    };
+    ```
+
+
     * **4.1.2. Model (Eloquent)**
         * *(Kumpulan output dari `Prompt_Create_Model_Eloquent.md`)*
-    * **4.1.3. Logika Validasi (Form Requests)**
+
+
+    ```php
+    users
+    <?php
+    namespace App\Models;
+
+    // use Illuminate\Contracts\Auth\MustVerifyEmail;
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use Illuminate\Database\Eloquent\Relations\HasMany;
+    use Illuminate\Foundation\Auth\User as Authenticatable;
+    use Illuminate\Notifications\Notifiable;
+
+    class User extends Authenticatable
+    {
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'subscription_status',
+        'subscription_ends_at',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'subscription_ends_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the subscriptions for the user.
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Get the transactions for the user.
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Get the budgets for the user.
+     */
+    public function budgets(): HasMany
+    {
+        return $this->hasMany(Budget::class);
+    }
+    }
+
+---
+```php
+    <?php
+    model Subscription
+    namespace App\Models;
+
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+    class Subscription extends Model
+    {
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'package_type',
+        'start_date',
+        'end_date',
+        'payment_status',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+        ];
+    }
+
+    /**
+     * Get the user that owns the subscription.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    }
+```
+---
+ ```php
+
+    <?php
+
+    namespace App\Models;
+
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+    class Transaction extends Model
+    {
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'type',
+        'amount',
+        'description',
+        'transaction_date',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'transaction_date' => 'date',
+        ];
+    }
+
+    /**
+     * Get the user that owns the transaction.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    }
+```
+---    
+    
+```php
+
+<?php
+
+    namespace App\Models;
+
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+    class Budget extends Model
+    {
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'name',
+        'total_amount',
+        'start_date',
+        'end_date',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'total_amount' => 'decimal:2',
+            'start_date' => 'date',
+            'end_date' => 'date',
+        ];
+    }
+
+    /**
+     * Get the user that owns the budget.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+```
+
+---
+
+
+
+* **4.1.3. Logika Validasi (Form Requests)**
         * *(Kumpulan output dari `Prompt_Create_Request_Validation.md`)*
     * **4.1.4. Controller & Routing**
         * *(Kumpulan output dari `Prompt_Create_Controller_Resource.md` dan `Prompt_Implementasi_Route.md`)*
