@@ -1002,6 +1002,7 @@ erDiagram
     }
 
 ---
+
 ```php
     <?php
     model Subscription
@@ -1161,6 +1162,366 @@ erDiagram
         * *(Kumpulan output dari `Prompt_Create_Request_Validation.md`)*
     * **4.1.4. Controller & Routing**
         * *(Kumpulan output dari `Prompt_Create_Controller_Resource.md` dan `Prompt_Implementasi_Route.md`)*
+        * *(Kumpulan output dari `Prompt_Implementasi_Route.md`) ada di routesdd.md*
+
+        * **Controller Budget**
+    ```php
+    <?php
+
+    namespace App\Modules\Budgeting\Http\Controllers;
+
+    use App\Http\Controllers\Controller;
+    use App\Models\Budget;
+    use App\Modules\Budgeting\Http\Requests\StoreBudgetRequest;
+    use App\Modules\Budgeting\Http\Requests\UpdateBudgetRequest;
+    use Illuminate\Http\RedirectResponse;
+    use Inertia\Inertia;
+    use Inertia\Response;
+
+    class BudgetController extends Controller
+    {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        $budgets = Budget::latest()->paginate(10);
+
+        return Inertia::render('Features/Budgets/Index', [
+            'budgets' => $budgets,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Features/Budgets/Editor');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreBudgetRequest $request): RedirectResponse
+    {
+        Budget::create($request->validated());
+
+        return redirect()->route('budgets.index')->with('message', 'Budget created successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Budget $budget): Response
+    {
+        return Inertia::render('Features/Budgets/Detail', [
+            'budget' => $budget,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Budget $budget): Response
+    {
+        return Inertia::render('Features/Budgets/Editor', [
+            'budget' => $budget,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateBudgetRequest $request, Budget $budget): RedirectResponse
+    {
+        $budget->update($request->validated());
+
+        return redirect()->route('budgets.index')->with('message', 'Budget updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Budget $budget): RedirectResponse
+    {
+        $budget->delete();
+
+        return redirect()->route('budgets.index')->with('message', 'Budget deleted successfully.');
+    }
+    }
+
+    ```
+
+
+    * **Controller Transaction**   
+    ```php
+    <?php
+
+    namespace App\Modules\Transaction\Http\Controllers;
+
+    use App\Http\Controllers\Controller;
+    use App\Models\Transaction;
+    use App\Modules\Transaction\Http\Requests\StoreTransactionRequest;
+    use App\Modules\Transaction\Http\Requests\UpdateTransactionRequest;
+    use Illuminate\Http\RedirectResponse;
+    use Inertia\Inertia;
+    use Inertia\Response;
+
+    class TransactionController extends Controller
+    {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        $transactions = Transaction::latest()->paginate(10);
+
+        return Inertia::render('Features/Transactions/Index', [
+            'transactions' => $transactions,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Features/Transactions/Editor');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreTransactionRequest $request): RedirectResponse
+    {
+        Transaction::create($request->validated());
+
+        return redirect()->route('transactions.index')->with('message', 'Transaction created successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Transaction $transaction): Response
+    {
+        return Inertia::render('Features/Transactions/Detail', [
+            'transaction' => $transaction,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Transaction $transaction): Response
+    {
+        return Inertia::render('Features/Transactions/Editor', [
+            'transaction' => $transaction,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateTransactionRequest $request, Transaction $transaction): RedirectResponse
+    {
+        $transaction->update($request->validated());
+
+        return redirect()->route('transactions.index')->with('message', 'Transaction updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Transaction $transaction): RedirectResponse
+    {
+        $transaction->delete();
+
+        return redirect()->route('transactions.index')->with('message', 'Transaction deleted successfully.');
+    }
+    }
+
+    ```
+
+    * **Controller Subscription**
+    ```php
+    <?php
+
+    namespace App\Modules\Subscription\Http\Controllers;
+
+    use App\Http\Controllers\Controller;
+    use App\Models\Subscription;
+    use App\Modules\Subscription\Http\Requests\StoreSubscriptionRequest;
+    use App\Modules\Subscription\Http\Requests\UpdateSubscriptionRequest;
+    use Illuminate\Http\RedirectResponse;
+    use Inertia\Inertia;
+    use Inertia\Response;
+
+    class SubscriptionController extends Controller
+    {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        $subscriptions = Subscription::latest()->paginate(10);
+
+        return Inertia::render('Features/Subscriptions/Index', [
+            'subscriptions' => $subscriptions,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Features/Subscriptions/Editor');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreSubscriptionRequest $request): RedirectResponse
+    {
+        Subscription::create($request->validated());
+
+        return redirect()->route('subscriptions.index')->with('message', 'Subscription created successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Subscription $subscription): Response
+    {
+        return Inertia::render('Features/Subscriptions/Detail', [
+            'subscription' => $subscription,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Subscription $subscription): Response
+    {
+        return Inertia::render('Features/Subscriptions/Editor', [
+            'subscription' => $subscription,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription): RedirectResponse
+    {
+        $subscription->update($request->validated());
+
+        return redirect()->route('subscriptions.index')->with('message', 'Subscription updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Subscription $subscription): RedirectResponse
+    {
+        $subscription->delete();
+
+        return redirect()->route('subscriptions.index')->with('message', 'Subscription deleted successfully.');
+    }
+    }
+
+    ```
+
+    * **Controller User**
+    ```php
+    <?php
+
+    namespace App\Modules\User\Http\Controllers;
+
+    use App\Http\Controllers\Controller;
+    use App\Models\User;
+    use App\Modules\User\Http\Requests\StoreUserRequest;
+    use App\Modules\User\Http\Requests\UpdateUserRequest;
+    use Illuminate\Http\RedirectResponse;
+    use Inertia\Inertia;
+    use Inertia\Response;
+
+    class UserController extends Controller
+    {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        $users = User::latest()->paginate(10);
+
+        return Inertia::render('Features/Users/Index', [
+            'users' => $users,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Features/Users/Editor');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreUserRequest $request): RedirectResponse
+    {
+        User::create($request->validated());
+
+        return redirect()->route('users.index')->with('message', 'User created successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(User $user): Response
+    {
+        return Inertia::render('Features/Users/Detail', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(User $user): Response
+    {
+        return Inertia::render('Features/Users/Editor', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    {
+        $user->update($request->validated());
+
+        return redirect()->route('users.index')->with('message', 'User updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $user): RedirectResponse
+    {
+        $user->delete();
+
+        return redirect()->route('users.index')->with('message', 'User deleted successfully.');
+    }
+    }
+
+    ```
+
+
     * **4.1.5. Aturan Otorisasi (Policies)**
         * *(Kumpulan output dari `Prompt_LIQ_Laravel_Policies.md`)*
 
