@@ -1,0 +1,40 @@
+amf-fintech/
+└── app/
+    ├── Console/
+    ├── Exceptions/
+    ├── Providers/
+    └── Modules/  # Direktori utama untuk semua fitur kita
+        ├── TransactionManagement/  # Modul untuk mengelola semua hal tentang transaksi
+        │   ├── Http/
+        │   │   ├── Controllers/
+        │   │   │   └── TransactionController.php
+        │   │   └── Requests/
+        │   │       ├── StoreTransactionRequest.php
+        │   │       └── UpdateTransactionRequest.php
+        │   ├── Models/
+        │   │   └── Transaction.php
+        │   └── Policies/
+        │       └── TransactionPolicy.php
+        │
+        ├── Budgeting/  # Modul untuk fitur budgeting
+        │   ├── Http/
+        │   │   ├── Controllers/
+        │   │   │   └── BudgetController.php
+        │   │   └── Requests/
+        │   │       └── StoreBudgetRequest.php
+        │   ├── Models/
+        │   │   └── Budget.php
+        │   └── Policies/
+        │       └── BudgetPolicy.php
+        │
+        └── UserManagement/  # Modul untuk user, profil, dan subscription
+            ├── Http/
+            │   ├── Controllers/
+            │   │   ├── ProfileController.php
+            │   │   └── SubscriptionController.php
+            │   └── Requests/
+            │       └── UpdateProfileRequest.php
+            └── Models/
+                ├── User.php
+                └── Subscription.php
+```

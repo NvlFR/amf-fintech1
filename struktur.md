@@ -11,7 +11,7 @@ Ini adalah pendekatan yang jauh lebih rapi dan skalabel. Mari kita susun ulang k
 Kita akan membuat direktori baru di dalam `app/` bernama `Modules`. Setiap fitur besar dari aplikasi Anda akan menjadi sebuah modul di dalamnya.
 
 ```
-webapp/
+amf-fintech/
 └── app/
     ├── Console/
     ├── Exceptions/
@@ -198,3 +198,222 @@ Jika proyek Anda menjadi sangat besar dan proses manual di atas terasa berulang,
   * **Keuntungan:** Package ini memberikan Anda perintah baru seperti `php artisan module:make Transaction` yang akan secara otomatis membuat seluruh struktur folder (Controller, Model, View, Route, dll.) untuk modul baru. Ini adalah standar industri untuk proyek Laravel modular yang sangat besar.
 
 Untuk saat ini, mengikuti tiga langkah manual di atas sudah lebih dari cukup dan memberi Anda kontrol penuh atas struktur proyek `amf-fintech` Anda.
+
+
+Tentu, pertanyaan Anda sangat tepat. Ini adalah kunci untuk bekerja secara efisien dengan struktur modular yang baru kita susun.
+
+Caranya adalah dengan **menyebutkan path lengkap modul** saat Anda menjalankan perintah `php artisan make`. Laravel cukup pintar untuk secara otomatis membuat direktori jika belum ada dan menyesuaikan `namespace` di dalam file yang dibuat.
+
+Berikut adalah panduan lengkapnya.
+
+-----
+
+### \#\# Pengaturan Satu Kali (Wajib Dilakukan Dahulu)
+
+Sebelum Anda mulai, pastikan Anda sudah melakukan ini. Jika belum, perintah `artisan` tidak akan bisa menemukan kelas Anda.
+
+1.  **Perbarui `composer.json`**: Buka file `composer.json` dan tambahkan path `app/Modules/` ke bagian `autoload` -\> `psr-4`.
+
+    ```json
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "App\\Modules\\": "app/Modules/", // <-- TAMBAHKAN BARIS INI
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    ```
+
+2.  **Jalankan `dump-autoload`**: Setelah menyimpan `composer.json`, jalankan perintah ini di terminal untuk me-refresh daftar kelas yang dikenali Laravel.
+
+    ```bash
+    composer dump-autoload
+    ```
+
+-----
+
+### \#\# Cara Menggunakan Perintah `php artisan`
+
+Sekarang Anda siap membuat file di dalam modul Anda. Mari kita gunakan modul `TransactionManagement` sebagai contoh.
+
+#### \#\#\# 1. Membuat Controller
+
+Untuk membuat `TransactionController.php` di dalam modul:
+
+```bash
+php artisan make:controller Modules/TransactionManagement/Http/Controllers/TransactionController --resource
+```
+
+  * **Hasil**: Laravel akan membuat file di `app/Modules/TransactionManagement/Http/Controllers/` dengan `namespace App\Modules\TransactionManagement\Http\Controllers;` secara otomatis.
+
+#### \#\#\# 2. Membuat Model (dan Migration)
+
+Untuk membuat model `Transaction.php` dan file migrasinya:
+
+```bash
+php artisan make:model Modules/TransactionManagement/Models/Transaction -m
+```
+
+  * **Hasil**: File model akan dibuat di `app/Modules/TransactionManagement/Models/`. File migrasi tetap akan dibuat di `database/migrations/` (ini adalah perilaku standar Laravel).
+
+#### \#\#\# 3. Membuat Form Request
+
+Untuk membuat `StoreTransactionRequest.php`:
+
+```bash
+php artisan make:request Modules/TransactionManagement/Http/Requests/StoreTransactionRequest
+```
+
+  * **Hasil**: File akan dibuat di `app/Modules/TransactionManagement/Http/Requests/` dengan namespace yang benar.
+
+#### \#\#\# 4. Membuat Policy
+
+Untuk membuat `TransactionPolicy.php` yang terhubung dengan model `Transaction`:
+
+```bash
+php artisan make:policy Modules/TransactionManagement/Policies/TransactionPolicy --model=Modules/TransactionManagement/Models/Transaction
+```
+
+  * **Hasil**: File *policy* akan dibuat di `app/Modules/TransactionManagement/Policies/`.
+
+-----
+
+### \#\# Cara Mengimpor di File Lain (Contoh: `routes/web.php`)
+
+Setelah file dibuat, Anda bisa langsung mengimpornya di tempat lain (misalnya di file *route*) menggunakan `namespace` lengkapnya.
+
+```php
+use Illuminate\Support\Facades\Route;
+use App\Modules\TransactionManagement\Http\Controllers\TransactionController; // <-- IMPORT DARI MODUL
+use App\Modules\Budgeting\Http\Controllers\BudgetController; // <-- IMPORT DARI MODUL LAIN
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [ /* ... */ ]);
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Rute untuk modul TransactionManagement
+    Route::resource('transactions', TransactionController::class);
+
+    // Rute untuk modul Budgeting
+    Route::resource('budgets', BudgetController::class);
+
+    // Dst...
+});
+```
+
+Dengan cara ini, Anda bisa menjaga kerapian dan pemisahan setiap modul sambil tetap menggunakan kemudahan perintah `php artisan`.
+
+
+
+
+Tentu, pilihan yang sangat bagus. Menggunakan *package* `nwidart/laravel-modules` adalah cara paling profesional dan efisien untuk mengelola arsitektur modular dalam jangka panjang. Ini akan mengotomatiskan banyak langkah yang sebelumnya kita lakukan secara manual.
+
+Berikut adalah panduan lengkap cara instalasi dan penggunaannya untuk proyek **amf-fintech** Anda.
+
+-----
+
+## \#\# Panduan Menggunakan `nwidart/laravel-modules`
+
+### \#\#\# Langkah 1: Instalasi Package
+
+Buka terminal di direktori utama proyek Laravel Anda (`webapp/`) dan jalankan perintah Composer berikut:
+
+```bash
+composer require nwidart/laravel-modules
+```
+
+-----
+
+### \#\#\# Langkah 2: Publikasi File Konfigurasi
+
+Jalankan perintah ini untuk mempublikasikan file konfigurasi dari *package* tersebut. Ini memungkinkan Anda untuk mengubah pengaturan *default* jika diperlukan (misalnya, di mana folder `Modules` akan dibuat).
+
+```bash
+php artisan vendor:publish --provider="Nwidart\Modules\LaravelModulesServiceProvider"
+```
+
+-----
+
+### \#\#\# Langkah 3: Konfigurasi Autoloading
+
+Sama seperti cara manual, kita perlu memberitahu Composer tentang direktori `Modules` yang akan dibuat oleh *package* ini.
+
+1.  Buka file `composer.json` Anda.
+
+2.  Tambahkan `Modules\\` ke bagian `autoload` -\> `psr-4`.
+
+    ```json
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Modules\\": "Modules/", // <-- TAMBAHKAN BARIS INI
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    ```
+
+    *Perhatikan: Secara *default*, *package* ini akan membuat folder `Modules/` di direktori *root* proyek Anda, sejajar dengan folder `app/`.*
+
+3.  Jalankan `composer dump-autoload` untuk me-*refresh*.
+
+    ```bash
+    composer dump-autoload
+    ```
+
+**Proses instalasi selesai. Sekarang bagian yang menyenangkannya.**
+
+-----
+
+### \#\#\# Langkah 4: Cara Penggunaan (Membuat Modul & File)
+
+Sekarang Anda memiliki serangkaian perintah `php artisan` baru yang diawali dengan `module:`.
+
+#### **Membuat Modul Baru**
+
+Misalkan kita ingin membuat modul **Budgeting**. Jalankan perintah ini:
+
+```bash
+php artisan module:make Budgeting
+```
+
+  * **Hasil:** Perintah ini secara ajaib akan membuat seluruh struktur direktori untuk Anda di dalam folder `Modules/Budgeting/`, lengkap dengan `Controllers`, `Models`, `Providers`, `Routes`, `Views`, dan banyak lagi. Semuanya sudah dikonfigurasi dan siap pakai.
+
+#### **Membuat Komponen di Dalam Modul**
+
+Sekarang, untuk membuat file di dalam modul `Budgeting`, perintahnya menjadi sangat sederhana. Anda hanya perlu menyebutkan nama file dan nama modulnya.
+
+  * **Membuat Controller:**
+    ```bash
+    php artisan module:make-controller BudgetController Budgeting --resource
+    ```
+  * **Membuat Model (dan Migration):**
+    ```bash
+    php artisan module:make-model Budget Budgeting -m
+    ```
+  * **Membuat Form Request:**
+    ```bash
+    php artisan module:make-request StoreBudgetRequest Budgeting
+    ```
+  * **Membuat Policy:**
+    ```bash
+    php artisan module:make-policy BudgetPolicy Budgeting --model=Budget
+    ```
+
+-----
+
+### \#\# Keuntungan Utama
+
+  * **Otomatisasi Penuh:** Anda tidak perlu lagi membuat folder manual atau khawatir tentang *namespace*.
+  * **Rute Terisolasi:** Setiap modul memiliki file rutenya sendiri (`Modules/Budgeting/Routes/web.php`), yang membuat file rute utama Anda tetap bersih.
+  * **Sangat Terstruktur:** Ini adalah standar industri untuk proyek Laravel modular skala besar.
+
+**Saran:** Anda bisa mulai dengan membuat modul baru menggunakan perintah di atas, lalu memindahkan kode yang sudah ada dari `app/Modules` ke dalam struktur modul yang baru dibuat oleh *package* ini untuk mengadopsinya sepenuhnya.
